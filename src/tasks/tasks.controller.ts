@@ -1,33 +1,37 @@
-import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-
-@Controller({})
+@Controller('/tasks')
 export class TaskController {
   
   constructor(private readonly tasksService: TasksService){}
 
-  @Get('/tasks')
-  getAllTasks(){
+  @Get()
+  getAllTasks(@Query() query: any){
     return this.tasksService.getTasks();
   }
 
-  @Post('/tasks')
-  createTask(){
-    return 'Creando tarea';
+  @Get('/:id')
+  getTask(@Param('id', ParseIntPipe) id: number){
+    return this.tasksService.getTask(id);
   }
 
-  @Put('/tasks/:id')
+  @Post()
+  createTask(@Body() task: any){
+    return this.tasksService.createTask(task);
+  }
+
+  @Put()
   updateTask(){
-    return 'Actualizando tarea';
+    return this.tasksService.updateTask();
   }
 
-  @Delete('/tasks/:id')
+  @Delete()
   deleteTask(){
-    return 'Eliminando tarea';
+    return this.tasksService.deleteTask();
   }
 
-  @Patch('/tasks/:id')
-  patchTask(){
-    return 'Actualizando parcialmente tarea';
+  @Patch()
+  updateTaksStatus(){
+    return this.tasksService.updateTaksStatus();
   }
 }

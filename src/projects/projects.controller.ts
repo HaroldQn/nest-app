@@ -1,4 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express'
 
-@Controller('projects')
-export class ProjectsController {}
+@Controller()
+export class ProjectsController {
+
+
+  @Get('/')
+  getProjects(@Req() request: Request, @Res() response: Response) {
+    console.log(request.url);
+    response.status(200).json({ message: 'Hello World!' });
+  }
+}
