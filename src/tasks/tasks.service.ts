@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomInt } from 'node:crypto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { PrismaService } from 'src/prisma.service';
 
 export interface User {
   name: string;
@@ -11,10 +12,10 @@ export interface User {
 export class TasksService {
   private tasks: any[] = [];
 
+  constructor(private prisma: PrismaService) {}
+
   getTasks() {
-    // toSorted, no modifica el array original
-    const AllTasks = this.tasks.toSorted((a, b)=> a.id - b.id) || [];
-    return AllTasks
+    return this.prisma.tasks.findMany() || [];
   }
 
   getTask(id: number) {
@@ -25,11 +26,15 @@ export class TasksService {
     return taskFound;
   }
 
+  // createTask(task: CreateTaskDto) {
+  //   let numberRandon = randomInt(100)
+  //   const newTask = { ...task, id: this.tasks.length + numberRandon };
+  //   this.tasks.push(newTask);
+  //   return newTask;
+  // }
+
   createTask(task: CreateTaskDto) {
-    let numberRandon = randomInt(100)
-    const newTask = { ...task, id: this.tasks.length + numberRandon };
-    this.tasks.push(newTask);
-    return newTask;
+    return this.prisma.tasks.create({ data: task });
   }
 
   updateTask(id: number, taskUpdate: UpdateTaskDto) {

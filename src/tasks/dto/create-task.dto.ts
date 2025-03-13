@@ -7,9 +7,9 @@ export class CreateTaskDto {
 
   @IsString()
   @MinLength(1)
-  title: string;
+  task: string;
 
   @IsString()
   @MinLength(1)
-  description:   string;
+  descripcion:   string;
 }
