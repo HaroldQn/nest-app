@@ -14,8 +14,10 @@ import {
 import { Request, Response } from 'express';
 import { ValidateuserPipe } from './pipes/validateuser/validateuser.pipe';
 import { AuthGuard } from './guards/auth/auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('Proyectos')
 export class ProjectsController {
   @Get('/')
   getProjects(@Req() request: Request, @Res() response: Response) {
