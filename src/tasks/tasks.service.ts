@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { randomInt } from 'node:crypto';
+import { randomInt, Sign } from 'node:crypto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -15,15 +15,21 @@ export class TasksService {
   constructor(private prisma: PrismaService) {}
 
   getTasks() {
-    return this.prisma.tasks.findMany() || [];
+    return this.prisma.tasks.findMany({
+      orderBy: {
+        id: 'desc',
+      }
+    }) || [];
   }
 
-  getTask(id: number) {
-    const taskFound = this.tasks.find((task) => task.id === id);
-    if (!taskFound) {
-      return new NotFoundException(`Task with id ${id} not found`);
-    }
-    return taskFound;
+  getTask(id: string) {
+    // const taskFound = this.tasks.find((task) => task.id === id);
+    // if (!taskFound) {
+    //   return new NotFoundException(`Task with id ${id} not found`);
+    // }
+    return this.prisma.tasks.findUnique({
+      where: { id: id },
+    });
   }
 
   // createTask(task: CreateTaskDto) {
@@ -37,33 +43,45 @@ export class TasksService {
     return this.prisma.tasks.create({ data: task });
   }
 
-  updateTask(id: number, taskUpdate: UpdateTaskDto) {
-    const taskFound = this.tasks.find((task) => task.id === id);
-    if (!taskFound) {
-      return {
-        message: 'Not found',
-      };
-    }
+  updateTask(id: string, taskUpdate: UpdateTaskDto) {
+    //Modelo 1
+      /**
 
-    /**
-     *  En el buble si el task en === al id que le enviamos , entonces 
-     *  actualizara los parametros por lo que le estoy enviando, y si no conincide con el id,
-     *  retorna el mismo
-     */
-    if (taskFound) {
-      this.tasks = this.tasks.map((task) =>
-        task.id === id ? { ...task, ...taskUpdate } : task,
-      );
-    }
+       const taskFound = this.tasks.find((task) => task.id === id);
+       if (!taskFound) {
+         return {
+          message: 'Not found',
+         };
+       }
+        En el buble si el task en === al id que le enviamos , entonces 
+        actualizara los parametros por lo que le estoy enviando, y si no conincide con el id,
+        retorna el mismo
+      
+       if (taskFound) {
+         this.tasks = this.tasks.map((task) =>
+           task.id === id ? { ...task, ...taskUpdate } : task,
+         );
+       }
 
-    return this.tasks
+      return this.tasks
+    */
+
+    //Modelo 2 usando prisma
+
+    return this.prisma.tasks.update({
+      where: { id: String(id) },
+      data: { ...taskUpdate },
+    })
   }
 
-  deleteTask() {
-    return 'Task deleted';
-  }
+  async deleteTask(id: string) {
+    const deleteTask = await this.prisma.tasks.delete({
+      where: { id: id },
+    });
 
-  updateTaskStatus() {
-    return 'Task status updated';
+    return {
+      message: 'Task deleted',
+      deleteTask,
+    };
   }
 }
